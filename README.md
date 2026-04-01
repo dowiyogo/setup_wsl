@@ -1,3 +1,115 @@
+````md
+# Instalar AlmaLinux 9 en Windows 11 con PowerShell
+
+## Opción recomendada
+
+Abre **PowerShell como Administrador** y ejecuta:
+
+```powershell
+wsl --install --no-distribution
+````
+
+Reinicia Windows, y luego ejecuta:
+
+```powershell
+wsl --update
+wsl --list --online
+wsl --install AlmaLinux-9
+```
+
+Para iniciarlo por primera vez:
+
+```powershell
+wsl -d AlmaLinux-9
+```
+
+Microsoft indica que `wsl --install` permite instalar WSL y también distribuciones específicas usando `wsl --install <DistributionName>`, y que los nombres válidos se pueden ver con `wsl --list --online`. AlmaLinux documenta que **AlmaLinux OS 9** está disponible tanto en Microsoft Store como en la CLI de WSL. ([Microsoft Learn][1])
+
+---
+
+## Comandos útiles después de instalar
+
+Ver estado de WSL:
+
+```powershell
+wsl --status
+```
+
+Ver distribuciones instaladas:
+
+```powershell
+wsl --list --verbose
+```
+
+Poner AlmaLinux 9 como distribución por defecto:
+
+```powershell
+wsl --set-default AlmaLinux-9
+```
+
+Asegurar que use WSL 2:
+
+```powershell
+wsl --set-version AlmaLinux-9 2
+```
+
+Cerrar todas las instancias de WSL:
+
+```powershell
+wsl --shutdown
+```
+
+Actualizar WSL:
+
+```powershell
+wsl --update
+```
+
+Estos comandos forman parte de los comandos básicos actuales de WSL, y Microsoft también recomienda `wsl --update` y `wsl --shutdown` para mantener o reiniciar el entorno. ([Microsoft Learn][1])
+
+---
+
+## Si `wsl --install` no funciona
+
+En algunos equipos conviene habilitar WSL manualmente desde PowerShell **como Administrador**:
+
+```powershell
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
+
+Luego reinicia Windows y ejecuta:
+
+```powershell
+wsl --update
+wsl --install AlmaLinux-9
+```
+
+Microsoft mantiene estos pasos manuales como alternativa para instalaciones donde el método directo no funciona. ([Microsoft Learn][2])
+
+---
+
+## Resumen corto
+
+Si quieres sólo lo esencial, usa esto:
+
+```powershell
+wsl --install --no-distribution
+```
+
+Reinicia, y después:
+
+```powershell
+wsl --update
+wsl --install AlmaLinux-9
+wsl -d AlmaLinux-9
+```
+
+[1]: https://learn.microsoft.com/es-es/windows/wsl/basic-commands?utm_source=chatgpt.com "Comandos básicos para WSL"
+[2]: https://learn.microsoft.com/en-us/windows/wsl/install-manual?utm_source=chatgpt.com "Manual installation steps for older versions of WSL"
+
+
+
 # Mesa 3D acelerado en AlmaLinux 9 sobre WSL2/WSLg
 
 Este documento resume los pasos que funcionaron para habilitar aceleración 3D real en **AlmaLinux 9** corriendo en **WSL2**, usando **WSLg** y el backend **D3D12** de Mesa.

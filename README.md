@@ -319,13 +319,12 @@ a:
 
 lo que deja el entorno mucho más apto para aplicaciones con OpenGL, Qt y visualización científica.
 
-````
-
 Y si quieres crearlo directo desde la terminal, usa esto:
 
 ```bash
 cat > README_mesa_3D_pulido.md <<'EOF'
 # Mesa 3D acelerado en AlmaLinux 9 sobre WSL2/WSLg
+````
 
 Este documento resume los pasos que funcionaron para habilitar aceleración 3D real en **AlmaLinux 9** corriendo en **WSL2**, usando **WSLg** y el backend **D3D12** de Mesa.
 

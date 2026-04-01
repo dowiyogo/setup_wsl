@@ -1,4 +1,3 @@
-````md
 # Instalar AlmaLinux 9 en Windows 11 con PowerShell
 
 ## Opción recomendada

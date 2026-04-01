@@ -154,8 +154,8 @@ Luego instalar dependencias:
 sudo dnf install -y \
   gcc gcc-c++ meson ninja-build cmake pkgconf-pkg-config \
   python3-mako python3-pyyaml python3-ply \
-  libX11-devel libXext-devel libXfixes-devel libdrm-devel \
-  libxcb-devel libxshmfence-devel libXrandr-devel \
+  libX11-devel libXext-devel libXfixes-devel libXrandr-devel libXxf86vm-devel \
+  libdrm-devel libxcb-devel xcb-util-keysyms-devel libxshmfence-devel \
   wayland-devel wayland-protocols-devel \
   expat-devel zlib-devel elfutils-libelf-devel \
   libglvnd-devel llvm-devel clang-devel \

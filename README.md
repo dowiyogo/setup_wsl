@@ -533,3 +533,146 @@ a:
 * `Accelerated: yes`
 
 lo que deja el entorno mucho más apto para aplicaciones con OpenGL, Qt y visualización científica.
+
+## Anexo: Scripts Bash del repositorio (`.sh`)
+
+Este anexo describe qué hace cada script Bash del repositorio, para qué sirve y cuáles son sus requisitos.
+
+---
+
+### `01_base_alma9.sh`
+
+**Qué hace**
+- Realiza un bootstrap base para **AlmaLinux 9 / EL9** en WSL2.
+- Actualiza el sistema (`dnf update`), habilita repositorios (`epel-release`, `crb`) y refresca metadatos.
+- Instala:
+  - herramientas de compilación (`Development Tools`, gcc/g++, cmake, ninja, autotools, etc.),
+  - utilidades de terminal y sistema (git, curl, wget, vim, tmux, htop, man, etc.),
+  - stack científico de Python (numpy, scipy, matplotlib, ipython),
+  - Jupyter (por RPM; con fallback a venv en `/opt/jupyter-venv`),
+  - utilidades científicas extra (`gnuplot`, `grace`, `ImageMagick`).
+- Limpia caché de DNF y muestra comandos de verificación al final.
+
+**Para qué sirve**
+- Dejar una instalación WSL2 con AlmaLinux preparada como entorno de trabajo técnico/científico general, lista para compilar software y trabajar con Python/Jupyter.
+
+**Requisitos**
+- Ejecutar como **root** (o con `sudo`), el propio script lo valida.
+- Distro compatible tipo EL9 (idealmente **AlmaLinux 9**).
+- Conectividad a internet para descargar paquetes.
+- `dnf` funcional y acceso a repositorios.
+- Espacio en disco suficiente para toolchains y paquetes.
+
+**Uso**
+```bash
+sudo sh 01_base_alma9.sh
+```
+
+---
+
+### `02_hep_stack_alma9.sh`
+
+**Qué hace**
+- Instala stack HEP/científico sobre AlmaLinux 9 en WSL2.
+- Prepara dependencias para ROOT/Geant4 (compiladores, CMake, Qt6, X11, Xerces-C, Boost, etc.).
+- Descarga e instala **ROOT** desde binario oficial en `/opt/hep/root-<versión>` y crea symlink `/opt/hep/root`.
+- Descarga, compila e instala **Geant4 11.4.0** desde fuente en `/opt/hep/geant4-<versión>` y crea symlink `/opt/hep/geant4`.
+- Instala datasets de Geant4 (según configuración `GEANT4_INSTALL_DATA=ON`).
+- Genera script de entorno común: `/opt/hep/setup.sh`.
+- Muestra pruebas sugeridas (`root`, `geant4-config`, ejemplo B1).
+
+**Para qué sirve**
+- Montar un entorno HEP reproducible para simulación/análisis (ROOT + Geant4) en una instalación WSL2 con AlmaLinux.
+
+**Requisitos**
+- Ejecutar como **root** (o con `sudo`), validado por el script.
+- AlmaLinux/RHEL-like (pensado para EL9).
+- Internet para descargar tarballs y dependencias.
+- Herramientas base de sistema (`dnf`, `tar`, `curl` o `wget`).
+- Recursos de compilación (CPU/RAM/espacio en disco), especialmente para Geant4.
+- Entorno gráfico/WSLg recomendable si se usarán componentes visuales (Qt/OpenGL).
+
+**Uso**
+```bash
+sudo sh 02_hep_stack_alma9.sh
+source /opt/hep/setup.sh
+```
+
+---
+
+### `check_wsl3d.sh`
+
+**Qué hace**
+- Ejecuta un diagnóstico general de aceleración 3D en WSL.
+- Detecta entorno WSL y estado de variables relevantes (`DISPLAY`, `WAYLAND_DISPLAY`, etc.).
+- Busca herramientas de diagnóstico (`glxinfo`, `eglinfo`, `vulkaninfo`).
+- Evalúa salidas de GLX/EGL/Vulkan para distinguir:
+  - aceleración por GPU,
+  - render por software (`llvmpipe`, `swrast`, etc.),
+  - resultado inconcluso.
+- Entrega diagnóstico final y código de salida:
+  - `0`: aceleración detectada,
+  - `1`: software rendering,
+  - `2`: inconcluso/faltan herramientas.
+
+**Para qué sirve**
+- Validar de forma rápida si WSLg está usando aceleración 3D real o está cayendo en renderizado por software.
+
+**Requisitos**
+- Shell POSIX (`/bin/sh`).
+- Recomendado tener instaladas utilidades:
+  - `mesa-demos` / `mesa-utils` (para `glxinfo`),
+  - `vulkan-tools` (para `vulkaninfo`),
+  - `eglinfo` según distro.
+- No requiere root para diagnóstico básico.
+
+**Uso**
+```bash
+sh check_wsl3d.sh
+echo $?
+```
+
+---
+
+### `check_wslg_d3d12.sh`
+
+**Qué hace**
+- Diagnóstico enfocado en backend **d3d12/WSLg** dentro de AlmaLinux en WSL.
+- Revisa rutas clave (`/mnt/wslg`, `/usr/lib/wsl/lib`, `/usr/lib/wsl/drivers`).
+- Busca bibliotecas/archivos relacionados con `d3d12`, `dxcore`, `dzn`.
+- Lista drivers DRI disponibles.
+- Muestra extractos de `glxinfo`/`eglinfo` para detectar si cae en software (`llvmpipe/swrast`) o si hay señales de aceleración.
+
+**Para qué sirve**
+- Investigar problemas específicos de integración Mesa/WSLg/d3d12 cuando no se obtiene aceleración GPU en OpenGL/EGL.
+
+**Requisitos**
+- Shell POSIX (`/bin/sh`).
+- Recomendado:
+  - `glxinfo` (`mesa-demos`/`mesa-utils`),
+  - `eglinfo`.
+- Acceso normal de lectura al sistema de archivos; no suele requerir root.
+
+**Uso**
+```bash
+sh check_wslg_d3d12.sh
+```
+
+---
+
+## Orden recomendado de uso
+
+1. Ejecutar bootstrap base:
+   ```bash
+   sudo sh 01_base_alma9.sh
+   ```
+2. (Opcional, si se necesita stack HEP) instalar ROOT + Geant4:
+   ```bash
+   sudo sh 02_hep_stack_alma9.sh
+   source /opt/hep/setup.sh
+   ```
+3. Verificar aceleración 3D en WSLg:
+   ```bash
+   sh check_wsl3d.sh
+   sh check_wslg_d3d12.sh
+   ```
